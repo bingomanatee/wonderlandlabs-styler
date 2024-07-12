@@ -23,15 +23,16 @@ function App() {
             </label>: mode: {appearance}
           </section>
         </div>
-        <h1>Vite + React</h1>
+        <h1 style={Styler.Singleton.for('h', {size: '1', appearance})}>Vite + React</h1>
         <div className="card">
           <Button variant='primary' onClick={() => setCount((count) => count + 1)}>
             count is {count}
           </Button>
           <Button variant='secondary'>Secondary Button </Button>
         </div>
+        <h2 style={Styler.Singleton.for('h', {size: '2', appearance})}>Click for more</h2>
         <p className="read-the-docs">
-          Click on the Vite and React logos to learn more
+          Click on the Vite logos to learn more
         </p>
       </div>
     </LightOrDark.Provider>
