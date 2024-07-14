@@ -7,15 +7,15 @@ const APP_STYLES = {
   flex: 1,
 }
 
+Styler.Singleton.add('app', APP_STYLES, {});
+
 Styler.Singleton.many({
   app: {
     light: {
-      ...APP_STYLES,
       backgroundColor: 'white',
       colorScheme: 'light'
     },
     dark: {
-      ...APP_STYLES,
       backgroundColor: 'black',
       colorScheme: 'dark'
     }
