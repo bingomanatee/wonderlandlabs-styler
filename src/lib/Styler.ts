@@ -24,6 +24,14 @@ class StylerStyle implements StylerStyleIF {
   constructor(public style: Style, public attrs: StyleAttrs) {
   }
 
+  noExtraProps(attrs) {
+    return Array.from(Object.keys(attrs)).every((key) => key in this.attrs);
+  }
+
+  isLessSpecificMatch(attrs: StyleAttrs): boolean {
+    return this.includes(attrs) && !this.matches(attrs);
+  }
+
   similarity(attrs: StyleAttrs) {
     let match = 0;
     for (const attr of Object.keys(attrs)) {
@@ -47,8 +55,12 @@ class StylerStyle implements StylerStyleIF {
     return score;
   }
 
+  includes(attrs: StyleAttrs) {
+    return   Array.from(Object.keys(this.attrs)).every((key) => (!key in attrs) || this.attrs[key] === attrs[key]);
+  }
+
   matches(attrs: StyleAttrs) {
-    return Array.from(Object.keys(attrs)).every((key) => this.attrs[key] === attrs[key]);
+    return this.noExtraProps(attrs) &&  Array.from(Object.keys(this.attrs)).every((key) => this.attrs[key] === attrs[key]);
   }
 
 }
@@ -67,7 +79,7 @@ export class Styler implements StylerIF{
     }
   }
 
-  inclusiveMatches(target: string, attrs: StyleAttrs) {
+  perfectMatches(target: string, attrs: StyleAttrs) {
     if (!this.targetStyles.has(target)) return [];
     const matches = [];
     for (const style of this.targetStyles.get(target)!) {
@@ -76,31 +88,33 @@ export class Styler implements StylerIF{
     return matches;
   }
 
+  private matches(target, attrs) {
+    const candidates = this.targetStyles.get(target) || [];
+
+    return candidates.filter((candidate) => candidate.noExtraProps(attrs));
+  }
+
   /**
    * find a style that matches the attributes
    * @param target
    * @param attrs
    */
-  for(target: string, attrs?: StyleAttrs) {
-    console.log('______________ for', target, 'matching', attrs, '_______________');
+  baseStyle(target: string, attrs?: StyleAttrs) {
     if (!this.targetStyles.has(target)) return {};
 
     // if there are one or more styles that perfectly match the attrs,
     // return the _lease specific_ one - i.e., the one with the fewest extra attrs.
-    const perfectMatches = attrs ? this.inclusiveMatches(target, attrs) : this.targetStyles.get(target)!;
+    const perfectMatches = attrs ? this.perfectMatches(target, attrs) : this.targetStyles.get(target)!;
 
     if (perfectMatches.length) {
-      console.log('...perfect matches for ', target, 'are', perfectMatches);
       return leastSpecificOf(perfectMatches)!.style;
     } else {
-      const mostSimilar = this.targetStyles.get(target)!.reduce((best: StylerStyleIF[], next: StylerStyleIF) => {
+      const mostSimilar = this.matches(target, attrs)!.reduce((best: StylerStyleIF[], next: StylerStyleIF) => {
         if (!best.length) {
           return [next];
         }
 
-        console.log('similarity of', best, 'are', best.map((b) => b.similarity(attrs)));
         const similarity = next.similarity(attrs);
-        console.log('next',next, 'similarity', next.similarity(attrs));
 
         if (best.every((bestStyle) => bestStyle.similarity(attrs) < similarity)) {
           return [next];
@@ -118,15 +132,31 @@ export class Styler implements StylerIF{
     }
   }
 
+  lessSpecificStyles (target, attrs) {
+    if (!this.targetStyles.has(target)) return [];
+    return this.targetStyles.get(target).filter((stylerStyle: StylerStyleIF) => {
+     return  stylerStyle.isLessSpecificMatch(attrs) && !stylerStyle.matches(attrs)
+    }).sort((a, b) => {
+      return b.specificity - a.specificity;
+    });
+  }
+
+  for(target, attrs) {
+    const baseStyle = this.baseStyle(target, attrs);
+    const lesserStyles = this.lessSpecificStyles(target, attrs).map((s) => s.style);
+    return[...lesserStyles, baseStyle].reduce((out, style) => {
+      // would use StyleSheet.combine
+      return {...out, ...style};
+    }, {});
+  }
+
   public many(data: Nested, attrNames: string[], history = []) {
-    console.log('....many ', data, attrNames, history);
     // if target is not explicit assume it is the last attribute.
     if (!attrNames.includes('target')) {
       attrNames = [...attrNames, 'target'];
     }
 
     if (isFlatObj(data)) {
-      console.log('...many: flat data');
       const minLength = Math.min(attrNames.length, history.length);
       const targetAndAttrs = zipObject(attrNames.slice(0, minLength), history.slice(0, minLength))
       if (!('target' in targetAndAttrs)) {
@@ -135,7 +165,6 @@ export class Styler implements StylerIF{
       const {target, ...attrs} = targetAndAttrs;
       this.add(target, data, attrs);
     } else {
-      console.log('data is not flat', data);
       for (const key of Object.keys(data)) {
         const value = data[key];
         if (!isObj(value)) continue;

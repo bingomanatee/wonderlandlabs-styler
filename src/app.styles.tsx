@@ -23,37 +23,39 @@ Styler.Singleton.many({
 
 }, ['target', 'appearance']);
 
-const HeadingStyles = [{}, {
-  fontSize: '2rem',
-  fontWeight: 800,
-},
-  {
-    fontSize: '1.5rem',
-    fontWeight: 600,
+Styler.Singleton.many({
+  h: {
+    1: {
+      fontSize: '2rem',
+      fontWeight: 800,
+      textTransform: 'uppercase'
+    },
+    2: {
+      fontSize: '1.5rem',
+      fontWeight: 600,
+    }
   }
-]
+}, ['target', 'size'])
 
 Styler.Singleton.many({
   h: {
     1: {
       light: {
-        ...HeadingStyles[1],
         color: 'black'
       },
       dark: {
-        ...HeadingStyles[1],
         color: 'white'
       }
     },
     2: {
       light: {
-        ...HeadingStyles[2],
         color: '#666666'
       },
       dark: {
-        ...HeadingStyles[2],
         color: '#999999'
       }
     }
   }
 }, ['target', 'size', 'appearance'])
+
+console.log('=========== styles are:', Styler.Singleton.targetStyles)

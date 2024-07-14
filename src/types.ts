@@ -4,6 +4,7 @@ export interface StylerStyleIF {
   specificity: number;
   attrs: StyleAttrs,
   style: Style
+  isLessSpecificMatch(attrs: StyleAttrs): boolean;
 }
 
 export interface StylerIF {

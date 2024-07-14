@@ -5,6 +5,7 @@ import './App.css'
 import {LightOrDark} from "./components/context/lightOrDark.tsx";
 import Button from "./components/buttons/Button.tsx";
 import {Styler} from "./lib/Styler.ts";
+import {StyleAttrs} from "./types.ts";
 
 function App() {
   const [count, setCount] = useState(0)
@@ -38,5 +39,22 @@ function App() {
     </LightOrDark.Provider>
   )
 }
+/*
+const TARGET: StyleAttrs = {
+  "size": "1",
+  "appearance": "light"
+};
+console.log('styler: styles in ', Styler.Singleton.targetStyles.get('h').map(s => s.style));
+console.log('styler: attrs in ', Styler.Singleton.targetStyles.get('h').map(s => s.attrs));
 
+console.log('styler: lessSpecificStyles ', TARGET, '=', Styler.Singleton.lessSpecificStyles('h', TARGET)
+  .filter(s => s.style));
+
+console.log('styler: includes for ',TARGET, '=', Styler.Singleton.targetStyles.get('h')
+  .filter((style) => style.includes(TARGET)).map((s) => s.style));
+
+console.log('styler: matches for ', TARGET, '=',Styler.Singleton.targetStyles.get('h')
+  .filter((style) => style.matches(TARGET)).map((s) => s.style));
+
+console.log('style for ', TARGET, 'is', Styler.Singleton.for('h', TARGET));*/
 export default App
