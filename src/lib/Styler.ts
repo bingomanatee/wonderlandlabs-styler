@@ -3,19 +3,6 @@ import {zipObject} from 'lodash-es';
 import {Nested, Style, StyleAttrs, StylerIF, StylerStyleIF} from "../types.ts";
 import {StylerStyle} from "./StylerStyle.ts";
 
-function leastSpecific(s1: StylerStyleIF, s2: StylerStyleIF) {
-  if (s1.specificity < s2.specificity) return s1;
-  return s2;
-}
-
-function leastSpecificOf(list: StylerStyleIF[]) {
-  return list.reduce((best: null | StylerStyleIF, next) => {
-      if (!best) return next;
-      return leastSpecific(best, next);
-    }, null
-  )
-}
-
 /**
  * a "style manager"
  */
@@ -47,20 +34,6 @@ export class Styler implements StylerIF {
     return matches;
   }
 
-  /**
-   * find a style that matches the attributes
-   * @param target
-   * @param attrs
-   */
-  perfectMatch(target: string, attrs: StyleAttrs): Style {
-    if (!this.targetStyles.has(target)) return {};
-
-    // if there are one or more styles that perfectly match the attrs,
-    // return the _lease specific_ one - i.e., the one with the fewest extra attrs.
-    const perfectMatches = this.perfectMatches(target, attrs);
-    return perfectMatches.length ? perfectMatches[0].style : {};
-  }
-
   lessSpecificStyles(target: string, attrs: StyleAttrs) {
     if (!this.targetStyles.has(target)) return [];
     return this.targetStyles.get(target)!
@@ -89,9 +62,9 @@ export class Styler implements StylerIF {
    * @param attrs
    */
   for(target: string, attrs: StyleAttrs) {
-    const baseStyle = this.perfectMatch(target, attrs);
+    const [perfectMatch] = this.perfectMatches(target, attrs);
     const lesserStyles = this.lessSpecificStyles(target, attrs).map((s) => s.style);
-    return [...lesserStyles, baseStyle].reduce((out, style) => {
+    return [...lesserStyles, (perfectMatch || {})].reduce((out, style) => {
       // would use StyleSheet.combine
       return {...out, ...style};
     }, {}) as Style;
