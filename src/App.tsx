@@ -50,8 +50,8 @@ console.log('styler: attrs in ', Styler.Singleton.targetStyles.get('h').map(s =>
 console.log('styler: lessSpecificStyles ', TARGET, '=', Styler.Singleton.lessSpecificStyles('h', TARGET)
   .filter(s => s.style));
 
-console.log('styler: includes for ',TARGET, '=', Styler.Singleton.targetStyles.get('h')
-  .filter((style) => style.includes(TARGET)).map((s) => s.style));
+console.log('styler: includesKeys for ',TARGET, '=', Styler.Singleton.targetStyles.get('h')
+  .filter((style) => style.includesKeys(TARGET)).map((s) => s.style));
 
 console.log('styler: matches for ', TARGET, '=',Styler.Singleton.targetStyles.get('h')
   .filter((style) => style.matches(TARGET)).map((s) => s.style));

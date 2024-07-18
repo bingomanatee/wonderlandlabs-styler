@@ -1,6 +1,7 @@
 import {isFlatObj, isObj} from "./gates.ts";
 import {zipObject} from 'lodash-es';
 import {Nested, Style, StyleAttrs, StylerIF, StylerStyleIF} from "../types.ts";
+import {StylerStyle} from "./StylerStyle.ts";
 
 function leastSpecific(s1: StylerStyleIF, s2: StylerStyleIF) {
   if (s1.specificity < s2.specificity) return s1;
@@ -15,89 +16,10 @@ function leastSpecificOf(list: StylerStyleIF[]) {
   )
 }
 
-const scoreValue: Map<string, number> = new Map([
-  ['appearance', 8],
-  ['variant', 4],
-])
-
-class StylerStyle implements StylerStyleIF {
-  constructor(public style: Style, public attrs: StyleAttrs) {
-  }
-
-  /**
-   * 
-   * returns true if every key in the input is contained by this definitions' attrs. 
-   * that is - there is no attribute in the input that is not an attribute of this.attrs.
-   * it _DOES NOT EXAMINE THE VALUES_ of the attrs, just the keys. 
-   * 
-   * @param attrs {StyleAttrs}
-   * @returns {boolean}
-   */
-  noExtraProps(attrs: StyleAttrs): boolean {
-    return Array.from(Object.keys(attrs)).every((key) => key in this.attrs);
-  }
-
-  get attrCount() {
-      return Array.from(Object.keys(this.attrs)).length;
-  }
-
-  isLessSpecificMatch(attrs: StyleAttrs): boolean {
-    return this.includes(attrs) && !this.matches(attrs);
-  }
-
-  similarity(attrs: StyleAttrs) {
-    let match = 0;
-    for (const prop of Object.keys(attrs)) {
-      let key = prop as string;
-      const propValue: any = attrs[key];
-
-      if (this.attrs[prop] === propValue) {
-        if (scoreValue.has(prop)) match += scoreValue.get(prop)!;
-        else match += 1;
-      }
-    }
-    return match;
-  }
-
-  /**
-   * how tightly specified this style is; 
-   * the more keys, the higher the score. 
-   */
-  get specificity() {
-    let score = 0;
-    for (const attr of Object.keys(this.attrs)) {
-      if (scoreValue.has(attr)) score += scoreValue.get(attr)!;
-      else score += 1;
-    }
-    return score;
-  }
-
-  /**
-   * returns true if the parameter has all the keys in this.attrs 
-   * _AND_ those properties have the same values. 
-   * it does NOT care about extra props in attrs. 
-   * 
-   * @param attrs {StyleAttrs}
-   * @returns 
-   */
-  includes(attrs: StyleAttrs) {
-    return Array.from(Object.keys(this.attrs)).every((key) => (!(key in attrs)) || this.attrs[key] === attrs[key]);
-  }
-
-  /**
-   * returns true if the attrs parameter is equal to the attrs of this style exactly 
-   * -- same keys and values. 
-   * 
-   * @param attrs {StyleAttrs}
-   * @returns 
-   */
-  matches(attrs: StyleAttrs) {
-    return this.noExtraProps(attrs) &&  Array.from(Object.keys(this.attrs)).every((key) => this.attrs[key] === attrs[key]);
-  }
-
-}
-
-export class Styler implements StylerIF{
+/**
+ * a "style manager"
+ */
+export class Styler implements StylerIF {
 
   public targetStyles: Map<string, StylerStyle[]> = new Map();
 
@@ -107,6 +29,11 @@ export class Styler implements StylerIF{
     if (!this.targetStyles.has(target)) {
       this.targetStyles.set(target, [new StylerStyle(style, attrs)]);
     } else {
+      if (this.targetStyles.get(target)!.some((ss) => {
+       return ss.matches(attrs)
+      })) {
+        console.warn('added multiple definitions for target', target, 'attrs', attrs)
+      }
       this.targetStyles.get(target)!.push(new StylerStyle(style, attrs));
     }
   }
@@ -121,84 +48,64 @@ export class Styler implements StylerIF{
   }
 
   /**
-   * 
-   * returns all the stylerStyles for a given target that are _NOT MORE SPECIFIC THAN_
-   * the requested attrs. 
-   * 
-   * @param target {string}
-   * @param attrs {StyleAttrs}
-   * @returns StylerStyles[]
-   */
-  private subsets(target: string, attrs: StyleAttrs) {
-    const candidates = this.targetStyles.get(target) || [];
-
-    return candidates.filter((candidate) => candidate.noExtraProps(attrs));
-  }
-
-  /**
    * find a style that matches the attributes
    * @param target
    * @param attrs
    */
-  baseStyle(target: string, attrs?: StyleAttrs) {
+  perfectMatch(target: string, attrs: StyleAttrs): Style {
     if (!this.targetStyles.has(target)) return {};
 
     // if there are one or more styles that perfectly match the attrs,
     // return the _lease specific_ one - i.e., the one with the fewest extra attrs.
-    const perfectMatches = attrs ? this.perfectMatches(target, attrs) : [];
-
-    if (perfectMatches.length) {
-      // there shouldn't be multiple perfet matches; if there is 
-      // they should be identical so return the first one. 
-      return perfectMatches[0]!.style;
-    } else if (!attrs) {
-      const emptyStyle= this.targetStyles.get(target)!.filter((style: StylerStyle) => {
-        return style.attrCount === 0;
-      })[0]
-      return emptyStyle ? emptyStyle.style : {};
-    } else {
-      const mostSimilar = this.subsets(target, attrs)!.reduce((best: StylerStyleIF[], next: StylerStyleIF) => {
-        if (!best.length) {
-          return [next];
-        }
-
-        const similarity = next.similarity(attrs);
-
-        if (best.every((bestStyle) => bestStyle.similarity(attrs) < similarity)) {
-          return [next];
-        }
-        if (best.every((bestStyle: StylerStyleIF) => bestStyle.similarity(attrs) === similarity)) {
-          return [...best, next];
-        }
-        return best;
-      }, []);
-
-      if (mostSimilar.length === 1) return mostSimilar[0].style;
-      if (mostSimilar.length === 0) return {};
-      // if there are more than one styles that are equally similar to the attributes return the one with the least number of attributes;
-      return leastSpecificOf(mostSimilar)!.style;
-    }
+    const perfectMatches = this.perfectMatches(target, attrs);
+    return perfectMatches.length ? perfectMatches[0].style : {};
   }
 
-  lessSpecificStyles (target: string, attrs: StyleAttrs) {
+  lessSpecificStyles(target: string, attrs: StyleAttrs) {
     if (!this.targetStyles.has(target)) return [];
-    return this.targetStyles.get(target)!.filter((stylerStyle: StylerStyleIF) => {
-     return  stylerStyle.isLessSpecificMatch(attrs) && !stylerStyle.matches(attrs)
-    }).sort((a, b) => {
-      return b.specificity - a.specificity;
-    });
+    return this.targetStyles.get(target)!
+      .filter((stylerStyle: StylerStyleIF) => stylerStyle.isLessSpecific(attrs))
+      .sort((a, b) => b.specificity - a.specificity);
   }
 
+  /**
+   * compresses all styles that are not more specific than the attrs into a single style.
+   *  -- enforces any perfect match as the domainant style.
+   *  -- supplies defaults from any less specific styles as supplemental definitions,
+   *     in order of specificity.
+   *
+   * there are two "known edge cases" that need to be resolved manually:
+   *
+   * 1. redundant "perfect match" definitions.
+   * 2. conflicting "equally non-specific" attrs;
+   *    -- e.g., a button style with {depressed: true}
+   *       and one with {disabled: true} with different styles.
+   *
+   * the fix for case two is to ensure all less specific style definitions have the sane properties.
+   * as in, define  attrs {disabled: true, depressed: false} and {disabled: false, despresed: true},
+   * not attrs {disabled: false} and {depressed: true}
+   *
+   * @param target
+   * @param attrs
+   */
   for(target: string, attrs: StyleAttrs) {
-    const baseStyle = this.baseStyle(target, attrs);
+    const baseStyle = this.perfectMatch(target, attrs);
     const lesserStyles = this.lessSpecificStyles(target, attrs).map((s) => s.style);
-    return[...lesserStyles, baseStyle].reduce((out, style) => {
+    return [...lesserStyles, baseStyle].reduce((out, style) => {
       // would use StyleSheet.combine
       return {...out, ...style};
-    }, {});
+    }, {}) as Style;
   }
 
-  public many(data: Nested, attrNames: string[], history = []) {
+  /**
+   * add a cluster of style definitions in an arbitrary JSON tree of definitions.
+   * All properties at the same depth are defined by the attrNames array.
+   *
+   * @param data {Nested}
+   * @param attrNames {String[]}
+   * @param history {String[]}
+   */
+  public addMany(data: Nested, attrNames: string[], history = []) {
     // if target is not explicit assume it is the last attribute.
     if (!attrNames.includes('target')) {
       attrNames = [...attrNames, 'target'];
@@ -218,7 +125,7 @@ export class Styler implements StylerIF{
         if (!isObj(value)) continue;
 
         if (history.length < attrNames.length) {
-          this.many(value, attrNames, [...history, key])
+          this.addMany(value, attrNames, [...history, key])
         }
       }
     }

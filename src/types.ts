@@ -1,14 +1,16 @@
 export interface StylerStyleIF {
-  similarity(attrs: StyleAttrs): number;
+  attrs: StyleAttrs;
+  includesKeys(attrs: StyleAttrs) : boolean;
+  isLessSpecific(attrs: StyleAttrs): boolean;
   matches(attrs: StyleAttrs): boolean;
+  noExtraKeys(attrs: StyleAttrs): boolean,
+  similarity(attrs: StyleAttrs): number;
   specificity: number;
-  attrs: StyleAttrs,
-  noExtraProps(attrs: StyleAttrs): boolean;
   style: Style;
-  isLessSpecificMatch(attrs: StyleAttrs): boolean;
 }
 
 export interface StylerIF {
+  addMany(data: Nested, attrNames: string[], history?: string[]) : void;
   targetStyles: Map<string, StylerStyleIF[]>;
   for(target: string, attrs: StyleAttrs): Style;
 }

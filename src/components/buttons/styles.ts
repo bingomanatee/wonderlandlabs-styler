@@ -33,5 +33,4 @@ const styles = {
   }
 };
 
-Styler.Singleton.many(styles, ['target', 'appearance', 'variant']);
-console.log('>>>> imported styles: ', Styler.Singleton.targetStyles);
+Styler.Singleton.addMany(styles, ['target', 'appearance', 'variant']);

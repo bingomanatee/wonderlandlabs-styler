@@ -9,7 +9,7 @@ const APP_STYLES = {
 
 Styler.Singleton.add('app', APP_STYLES, {});
 
-Styler.Singleton.many({
+Styler.Singleton.addMany({
   app: {
     light: {
       backgroundColor: 'white',
@@ -23,7 +23,7 @@ Styler.Singleton.many({
 
 }, ['target', 'appearance']);
 
-Styler.Singleton.many({
+Styler.Singleton.addMany({
   h: {
     1: {
       fontSize: '2rem',
@@ -37,7 +37,7 @@ Styler.Singleton.many({
   }
 }, ['target', 'size'])
 
-Styler.Singleton.many({
+Styler.Singleton.addMany({
   h: {
     1: {
       light: {
