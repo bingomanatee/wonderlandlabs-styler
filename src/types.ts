@@ -3,7 +3,8 @@ export interface StylerStyleIF {
   matches(attrs: StyleAttrs): boolean;
   specificity: number;
   attrs: StyleAttrs,
-  style: Style
+  noExtraProps(attrs: StyleAttrs): boolean;
+  style: Style;
   isLessSpecificMatch(attrs: StyleAttrs): boolean;
 }
 
@@ -17,5 +18,5 @@ export type StyleAttrs = {
   variant?: string,
   appearance?: 'light' | 'darn',
   target?: string
-} & Record<string, string>;
+} & Record<string, string | number>;
 export type Nested = Record<string, number | string | Nested>;
