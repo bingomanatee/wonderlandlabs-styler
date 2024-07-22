@@ -1,0 +1,8 @@
+{
+  "src/main.ts": {
+    "file": "Styler.umd.cjs",
+    "name": "main",
+    "src": "src/main.ts",
+    "isEntry": true
+  }
+}
