@@ -1,62 +1,62 @@
-var P = Object.defineProperty;
-var $ = (e, t, r) => t in e ? P(e, t, { enumerable: !0, configurable: !0, writable: !0, value: r }) : e[t] = r;
-var u = (e, t, r) => $(e, typeof t != "symbol" ? t + "" : t, r);
-function h(e) {
+var T = Object.defineProperty;
+var w = (e, t, r) => t in e ? T(e, t, { enumerable: !0, configurable: !0, writable: !0, value: r }) : e[t] = r;
+var l = (e, t, r) => w(e, typeof t != "symbol" ? t + "" : t, r);
+function g(e) {
   return !!(e && typeof e == "object");
 }
-function w(e) {
-  if (!h(e)) return !1;
+function m(e) {
+  if (!g(e)) return !1;
   const t = e;
   return !!("light" in t && t.light || "dark" in t && t.dark);
 }
-function _(e) {
-  if (!h(e)) return !1;
+function $(e) {
+  if (!g(e)) return !1;
   const t = e;
-  return Array.from(Object.keys(t)).every((r) => typeof t[r] == "string" || typeof t[r] == "number" || w(t[r]));
+  return Array.from(Object.keys(t)).every((r) => typeof t[r] == "string" || typeof t[r] == "number" || m(t[r]));
 }
-const M = _;
-var x = typeof global == "object" && global && global.Object === Object && global, A = typeof self == "object" && self && self.Object === Object && self, O = x || A || Function("return this")(), a = O.Symbol, v = Object.prototype, k = v.hasOwnProperty, E = v.toString, c = a ? a.toStringTag : void 0;
-function F(e) {
-  var t = k.call(e, c), r = e[c];
+const k = $;
+var A = typeof global == "object" && global && global.Object === Object && global, M = typeof self == "object" && self && self.Object === Object && self, j = A || M || Function("return this")(), a = j.Symbol, v = Object.prototype, _ = v.hasOwnProperty, F = v.toString, c = a ? a.toStringTag : void 0;
+function L(e) {
+  var t = _.call(e, c), r = e[c];
   try {
     e[c] = void 0;
     var n = !0;
   } catch {
   }
-  var s = E.call(e);
+  var s = F.call(e);
   return n && (t ? e[c] = r : delete e[c]), s;
 }
-var L = Object.prototype, C = L.toString;
-function K(e) {
-  return C.call(e);
+var x = Object.prototype, I = x.toString;
+function C(e) {
+  return I.call(e);
 }
-var V = "[object Null]", I = "[object Undefined]", b = a ? a.toStringTag : void 0;
+var E = "[object Null]", V = "[object Undefined]", h = a ? a.toStringTag : void 0;
 function J(e) {
-  return e == null ? e === void 0 ? I : V : b && b in Object(e) ? F(e) : K(e);
+  return e == null ? e === void 0 ? V : E : h && h in Object(e) ? L(e) : C(e);
 }
-function T(e) {
+function P(e) {
   var t = typeof e;
   return e != null && (t == "object" || t == "function");
 }
-var R = "[object AsyncFunction]", z = "[object Function]", G = "[object GeneratorFunction]", q = "[object Proxy]";
+var R = "[object AsyncFunction]", G = "[object Function]", K = "[object GeneratorFunction]", q = "[object Proxy]";
 function D(e) {
-  if (!T(e))
+  if (!P(e))
     return !1;
   var t = J(e);
-  return t == z || t == G || t == R || t == q;
+  return t == G || t == K || t == R || t == q;
 }
-var y = O["__core-js_shared__"], p = function() {
+var y = j["__core-js_shared__"], p = function() {
   var e = /[^.]+$/.exec(y && y.keys && y.keys.IE_PROTO || "");
   return e ? "Symbol(src)_1." + e : "";
 }();
-function H(e) {
+function z(e) {
   return !!p && p in e;
 }
-var N = Function.prototype, U = N.toString;
-function Z(e) {
+var H = Function.prototype, N = H.toString;
+function U(e) {
   if (e != null) {
     try {
-      return U.call(e);
+      return N.call(e);
     } catch {
     }
     try {
@@ -66,63 +66,63 @@ function Z(e) {
   }
   return "";
 }
-var B = /[\\^$.*+?()[\]{}|]/g, Q = /^\[object .+?Constructor\]$/, W = Function.prototype, X = Object.prototype, Y = W.toString, tt = X.hasOwnProperty, et = RegExp(
-  "^" + Y.call(tt).replace(B, "\\$&").replace(/hasOwnProperty|(function).*?(?=\\\()| for .+?(?=\\\])/g, "$1.*?") + "$"
+var Z = /[\\^$.*+?()[\]{}|]/g, B = /^\[object .+?Constructor\]$/, Q = Function.prototype, W = Object.prototype, X = Q.toString, Y = W.hasOwnProperty, tt = RegExp(
+  "^" + X.call(Y).replace(Z, "\\$&").replace(/hasOwnProperty|(function).*?(?=\\\()| for .+?(?=\\\])/g, "$1.*?") + "$"
 );
-function rt(e) {
-  if (!T(e) || H(e))
+function et(e) {
+  if (!P(e) || z(e))
     return !1;
-  var t = D(e) ? et : Q;
-  return t.test(Z(e));
+  var t = D(e) ? tt : B;
+  return t.test(U(e));
 }
-function nt(e, t) {
+function rt(e, t) {
   return e == null ? void 0 : e[t];
 }
-function st(e, t) {
-  var r = nt(e, t);
-  return rt(r) ? r : void 0;
+function nt(e, t) {
+  var r = rt(e, t);
+  return et(r) ? r : void 0;
 }
-var S = function() {
+var b = function() {
   try {
-    var e = st(Object, "defineProperty");
+    var e = nt(Object, "defineProperty");
     return e({}, "", {}), e;
   } catch {
   }
 }();
-function it(e, t, r) {
-  t == "__proto__" && S ? S(e, t, {
+function st(e, t, r) {
+  t == "__proto__" && b ? b(e, t, {
     configurable: !0,
     enumerable: !0,
     value: r,
     writable: !0
   }) : e[t] = r;
 }
-function ot(e, t) {
+function it(e, t) {
   return e === t || e !== e && t !== t;
 }
-var ct = Object.prototype, at = ct.hasOwnProperty;
-function lt(e, t, r) {
+var ot = Object.prototype, ct = ot.hasOwnProperty;
+function at(e, t, r) {
   var n = e[t];
-  (!(at.call(e, t) && ot(n, r)) || r === void 0 && !(t in e)) && it(e, t, r);
+  (!(ct.call(e, t) && it(n, r)) || r === void 0 && !(t in e)) && st(e, t, r);
 }
 function ft(e, t, r) {
   for (var n = -1, s = e.length, i = t.length, o = {}; ++n < s; ) {
-    var f = n < i ? t[n] : void 0;
-    r(o, e[n], f);
+    var u = n < i ? t[n] : void 0;
+    r(o, e[n], u);
   }
   return o;
 }
 function ut(e, t) {
-  return ft(e || [], t || [], lt);
+  return ft(e || [], t || [], at);
 }
-const d = /* @__PURE__ */ new Map([
+const S = /* @__PURE__ */ new Map([
   ["appearance", 8],
   ["variant", 4]
 ]);
-function j(e) {
+function d(e) {
   return Array.from(Object.keys(e)).length;
 }
-class m {
+class lt {
   constructor(t, r) {
     this.style = t, this.attrs = r;
   }
@@ -138,17 +138,17 @@ class m {
    * @param attrs {StyleAttrs}
    * @returns {boolean}
    */
-  noExtraKeys(t) {
+  haveAllKeysOf(t) {
     return Array.from(Object.keys(t)).every((r) => r in this.attrs);
   }
   get attrCount() {
-    return j(this.attrs);
+    return d(this.attrs);
   }
   isLessSpecific(t) {
-    return this.noExtraKeys(t) && this.attrCount > j(t);
+    return this.keysPresentIn(t) && this.attrCount < d(t);
   }
   isLessSpecificMatch(t) {
-    return this.isLessSpecific(t) && Object.keys(t).every((r) => this.attrs[r] === t[r]);
+    return this.isLessSpecific(t) && Object.keys(this.attrs).every((r) => this.attrs[r] === t[r]);
   }
   /**
    * how tightly specified this style is;
@@ -157,7 +157,7 @@ class m {
   get specificity() {
     let t = 0;
     for (const r of Object.keys(this.attrs))
-      d.has(r) ? t += d.get(r) : t += 1;
+      S.has(r) ? t += S.get(r) : t += 1;
     return t;
   }
   /**
@@ -167,7 +167,7 @@ class m {
    * @param attrs {StyleAttrs}
    * @returns
    */
-  includesKeys(t) {
+  keysPresentIn(t) {
     for (const r of Object.keys(this.attrs))
       if (!(r in t)) return !1;
     return !0;
@@ -183,7 +183,9 @@ class m {
    * @returns
    */
   matches(t) {
-    return this.noExtraKeys(t) && this.includesKeys(t) && Array.from(Object.keys(this.attrs)).every((r) => this.attrs[r] === t[r]);
+    return this.haveAllKeysOf(t) && this.keysPresentIn(t) && Array.from(Object.keys(this.attrs)).every(
+      (r) => this.attrs[r] === t[r]
+    );
   }
   toJSON() {
     const t = { style: {}, attrs: {} };
@@ -200,16 +202,18 @@ class m {
     return t.toString() === this.toString();
   }
 }
-const gt = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
-  __proto__: null,
-  StylerStyle: m
-}, Symbol.toStringTag, { value: "Module" })), l = class l {
+const f = class f {
   constructor() {
-    u(this, "targetStyles", /* @__PURE__ */ new Map());
+    l(this, "targetStyles", /* @__PURE__ */ new Map());
   }
   add(t, r, n) {
-    const s = new m(r, n);
-    this.targetStyles.has(t) ? (this.targetStyles.get(t).some((i) => i.matches(n)) && console.warn("added multiple definitions for target", t, "attrs", n), this.targetStyles.get(t).push(s)) : this.targetStyles.set(t, [s]);
+    const s = new lt(r, n);
+    this.targetStyles.has(t) ? (this.targetStyles.get(t).some((i) => i.matches(n)) && console.warn(
+      "added multiple definitions for target",
+      t,
+      "attrs",
+      n
+    ), this.targetStyles.get(t).push(s)) : this.targetStyles.set(t, [s]);
   }
   perfectMatches(t, r) {
     if (!this.targetStyles.has(t)) return [];
@@ -219,7 +223,12 @@ const gt = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
     return n;
   }
   lessSpecificStyles(t, r) {
-    return this.targetStyles.has(t) ? this.targetStyles.get(t).filter((n) => n.isLessSpecificMatch(r)).sort((n, s) => s.specificity - n.specificity) : [];
+    return this.targetStyles.has(t) ? this.targetStyles.get(t).filter((n) => (console.log(
+      r,
+      "lses specific",
+      n.toString(),
+      n.isLessSpecificMatch(r)
+    ), n.isLessSpecificMatch(r))).sort((n, s) => s.specificity - n.specificity) : [];
   }
   /**
    * compresses all styles that are not more specific than the attrs into a single style.
@@ -242,8 +251,11 @@ const gt = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
    * @param attrs
    */
   for(t, r) {
+    if (!(t && r)) throw new Error("must have target and attrs");
     const [n] = this.perfectMatches(t, r);
-    return [...this.lessSpecificStyles(t, r).map((i) => i.style), n || {}].reduce((i, o) => ({ ...i, ...o }), {});
+    return [...this.lessSpecificStyles(t, r).map(
+      (i) => i.style
+    ), (n == null ? void 0 : n.style) || {}].reduce((i, o) => ({ ...i, ...o }), {});
   }
   /**
    * add a cluster of style definitions in an arbitrary JSON tree of definitions.
@@ -254,26 +266,26 @@ const gt = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
    * @param history {String[]}
    */
   addMany(t, r, n = []) {
-    if (r.includes("target") || (r = [...r, "target"]), M(t)) {
-      const s = Math.min(r.length, n.length), i = ut(r.slice(0, s), n.slice(0, s));
+    if (r.includes("target") || (r = [...r, "target"]), k(t)) {
+      const s = Math.min(r.length, n.length), i = ut(
+        r.slice(0, s),
+        n.slice(0, s)
+      );
       if (!("target" in i))
         return;
-      const { target: o, ...f } = i;
-      this.add(o, t, f);
+      const { target: o, ...u } = i;
+      this.add(o, t, u);
     } else
       for (const s of Object.keys(t)) {
         const i = t[s];
-        h(i) && n.length < r.length && this.addMany(i, r, [...n, s]);
+        g(i) && n.length < r.length && this.addMany(i, r, [...n, s]);
       }
   }
 };
-u(l, "Singleton", new l());
-let g = l;
-const ht = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
-  __proto__: null,
-  Styler: g
-}, Symbol.toStringTag, { value: "Module" }));
+l(f, "Singleton", new f());
+let O = f;
 export {
-  ht as Styler,
-  gt as StylerStyle
+  O as Styler,
+  lt as StylerStyle,
+  O as default
 };

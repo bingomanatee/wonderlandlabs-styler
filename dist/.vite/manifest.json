@@ -1,8 +1,8 @@
 {
-  "src/main.ts": {
-    "file": "Styler.umd.cjs",
-    "name": "main",
-    "src": "src/main.ts",
+  "src/index.ts": {
+    "file": "index.umd.cjs",
+    "name": "index",
+    "src": "src/index.ts",
     "isEntry": true
   }
 }

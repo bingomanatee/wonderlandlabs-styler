@@ -1,13 +1,12 @@
-import {isFlatObj, isObj} from "./gates";
-import {zipObject} from 'lodash-es';
-import {Nested, Style, StyleAttrs, StylerIF, StylerStyleIF} from "./types";
-import {StylerStyle} from "./StylerStyle";
+import { isFlatObj, isObj } from "./gates";
+import { zipObject } from "lodash-es";
+import { Nested, Style, StyleAttrs, StylerIF, StylerStyleIF } from "./types";
+import { StylerStyle } from "./StylerStyle";
 
 /**
  * a "style manager"
  */
 export class Styler implements StylerIF {
-
   public targetStyles: Map<string, StylerStyle[]> = new Map();
 
   public static Singleton: Styler = new Styler();
@@ -17,10 +16,17 @@ export class Styler implements StylerIF {
     if (!this.targetStyles.has(target)) {
       this.targetStyles.set(target, [newStyle]);
     } else {
-      if (this.targetStyles.get(target)!.some((ss) => {
-        return ss.matches(attrs)
-      })) {
-        console.warn('added multiple definitions for target', target, 'attrs', attrs)
+      if (
+        this.targetStyles.get(target)!.some((ss) => {
+          return ss.matches(attrs);
+        })
+      ) {
+        console.warn(
+          "added multiple definitions for target",
+          target,
+          "attrs",
+          attrs
+        );
       }
       this.targetStyles.get(target)!.push(newStyle);
     }
@@ -37,9 +43,12 @@ export class Styler implements StylerIF {
 
   lessSpecificStyles(target: string, attrs: StyleAttrs) {
     if (!this.targetStyles.has(target)) return [];
-    return this.targetStyles.get(target)!
-      .filter((stylerStyle: StylerStyleIF) => stylerStyle.isLessSpecificMatch(attrs))
-      .sort((a, b) => b.specificity - a.specificity);
+    return this.targetStyles
+      .get(target)!
+      .filter((stylerStyle: StylerStyleIF) => {
+        return stylerStyle.isLessSpecificMatch(attrs);
+      })
+      .sort((a, b) => a.specificity - b.specificity);
   }
 
   /**
@@ -63,11 +72,16 @@ export class Styler implements StylerIF {
    * @param attrs
    */
   for(target: string, attrs: StyleAttrs) {
+    if (!(target && attrs)) throw new Error("must have target and attrs");
     const [perfectMatch] = this.perfectMatches(target, attrs);
-    const lesserStyles = this.lessSpecificStyles(target, attrs).map((s) => s.style);
-    return [...lesserStyles, (perfectMatch || {})].reduce((out, style) => {
+    const lesserStyles = this.lessSpecificStyles(target, attrs).map(
+      (s) => s.style
+    );
+    //  console.log(attrs, "perfect style:", perfectMatch?.style);
+    // console.log(attrs, "lesserStyles:", lesserStyles);
+    return [...lesserStyles, perfectMatch?.style || {}].reduce((out, style) => {
       // would use StyleSheet.combine
-      return {...out, ...style};
+      return { ...out, ...style };
     }, {}) as Style;
   }
 
@@ -81,17 +95,20 @@ export class Styler implements StylerIF {
    */
   public addMany(data: Nested, attrNames: string[], history = []) {
     // if target is not explicit assume it is the last attribute.
-    if (!attrNames.includes('target')) {
-      attrNames = [...attrNames, 'target'];
+    if (!attrNames.includes("target")) {
+      attrNames = [...attrNames, "target"];
     }
 
     if (isFlatObj(data)) {
       const minLength = Math.min(attrNames.length, history.length);
-      const targetAndAttrs = zipObject(attrNames.slice(0, minLength), history.slice(0, minLength))
-      if (!('target' in targetAndAttrs)) {
+      const targetAndAttrs = zipObject(
+        attrNames.slice(0, minLength),
+        history.slice(0, minLength)
+      );
+      if (!("target" in targetAndAttrs)) {
         return;
       }
-      const {target, ...attrs} = targetAndAttrs;
+      const { target, ...attrs } = targetAndAttrs;
       this.add(target, data, attrs);
     } else {
       for (const key of Object.keys(data)) {
@@ -100,7 +117,7 @@ export class Styler implements StylerIF {
 
         if (history.length < attrNames.length) {
           //@ts-ignore
-          this.addMany(value, attrNames, [...history, key])
+          this.addMany(value, attrNames, [...history, key]);
         }
       }
     }

@@ -1,10 +1,9 @@
-import {AttrValue, Style, StyleAttrs, StylerStyleIF} from "./types";
-import {LightDark} from "./gates";
-
+import { AttrValue, Style, StyleAttrs, StylerStyleIF } from "./types";
+import { LightDark } from "./gates";
 
 const scoreValue: Map<string, number> = new Map([
-  ['appearance', 8],
-  ['variant', 4],
+  ["appearance", 8],
+  ["variant", 4],
 ]);
 
 function keyCount(a: Record<string, unknown>) {
@@ -16,8 +15,7 @@ function keyCount(a: Record<string, unknown>) {
  * (but NOT necessarily vice versa) apply all of these styles.
  */
 export class StylerStyle implements StylerStyleIF {
-  constructor(public style: Style, public attrs: StyleAttrs) {
-  }
+  constructor(public style: Style, public attrs: StyleAttrs) {}
 
   /**
    *
@@ -31,7 +29,7 @@ export class StylerStyle implements StylerStyleIF {
    * @param attrs {StyleAttrs}
    * @returns {boolean}
    */
-  noExtraKeys(attrs: StyleAttrs): boolean {
+  haveAllKeysOf(attrs: StyleAttrs): boolean {
     return Array.from(Object.keys(attrs)).every((key) => key in this.attrs);
   }
 
@@ -40,12 +38,14 @@ export class StylerStyle implements StylerStyleIF {
   }
 
   isLessSpecific(attrs: StyleAttrs): boolean {
-    return this.noExtraKeys(attrs) && this.attrCount > keyCount(attrs);
+    return this.keysPresentIn(attrs) && this.attrCount < keyCount(attrs);
   }
 
   isLessSpecificMatch(attrs: StyleAttrs) {
-    return this.isLessSpecific(attrs) && Object.keys(attrs).
-    every((key) => this.attrs[key] === attrs[key]);
+    return (
+      this.isLessSpecific(attrs) &&
+      Object.keys(this.attrs).every((key) => this.attrs[key] === attrs[key])
+    );
   }
 
   /**
@@ -68,7 +68,7 @@ export class StylerStyle implements StylerStyleIF {
    * @param attrs {StyleAttrs}
    * @returns
    */
-  includesKeys(attrs: StyleAttrs) {
+  keysPresentIn(attrs: StyleAttrs) {
     for (const key of Object.keys(this.attrs)) {
       if (!(key in attrs)) return false;
     }
@@ -86,30 +86,36 @@ export class StylerStyle implements StylerStyleIF {
    * @returns
    */
   matches(attrs: StyleAttrs) {
-    return this.noExtraKeys(attrs)
-      && this.includesKeys(attrs)
-      && Array.from(Object.keys(this.attrs))
-        .every((k) => this.attrs[k] === attrs[k]);
+    return (
+      this.haveAllKeysOf(attrs) &&
+      this.keysPresentIn(attrs) &&
+      Array.from(Object.keys(this.attrs)).every(
+        (k) => this.attrs[k] === attrs[k]
+      )
+    );
   }
   toJSON() {
     const out: {
-      style: Record<string, string | LightDark>,
-      attrs: Record<string, AttrValue>
-    } = {style:{}, attrs:{}};
-    Array.from(Object.keys(this.style)).sort().forEach((k) => {
-      out.style[k] = this.style[k] as string | LightDark;
-    })
-    Array.from(Object.keys(this.attrs)).sort().forEach((k) => {
-      out.attrs[k] = this.attrs[k] as AttrValue
-    })
+      style: Record<string, string | LightDark>;
+      attrs: Record<string, AttrValue>;
+    } = { style: {}, attrs: {} };
+    Array.from(Object.keys(this.style))
+      .sort()
+      .forEach((k) => {
+        out.style[k] = this.style[k] as string | LightDark;
+      });
+    Array.from(Object.keys(this.attrs))
+      .sort()
+      .forEach((k) => {
+        out.attrs[k] = this.attrs[k] as AttrValue;
+      });
     return out;
   }
   toString() {
-    return JSON.stringify(this.toJSON());
+    return JSON.stringify(this.toJSON(), true, 1);
   }
 
   equals(ss: StylerStyleIF) {
     return ss.toString() === this.toString();
   }
-
 }
