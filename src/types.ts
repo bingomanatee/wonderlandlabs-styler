@@ -17,10 +17,12 @@ export interface StylerIF {
   for(target: string, attrs: StyleAttrs): Style;
 }
 
+export type AttrValue = string | boolean | number;
 export type Style = Record<string, unknown>;
 export type StyleAttrs = {
   variant?: string,
   appearance?: 'light' | 'darn',
   target?: string
-} & Record<string, string | number>;
+} & Record<string, AttrValue>;
+// @ts-ignore
 export type Nested = Record<string, number | string | Nested>;
