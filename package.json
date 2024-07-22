@@ -1,7 +1,7 @@
 {
   "name": "@wonderlandlabs/styler",
   "private": false,
-  "version": "0.0.6",
+  "version": "0.0.7",
   "type": "module",
   "author": "David Edelhart",
   "scripts": {
@@ -31,8 +31,8 @@
   },
   "exports": {
     ".": {
-      "import": "./dist/Styler.js",
-      "require": "./dist/Styler.umd.cjs"
+      "import": "./dist/index.js",
+      "require": "./dist/index.umd.cjs"
     }
   },
   "description": "An demo of a \"style specificity engine\"; you add styles with annotative properties to a local store and retrieve the most appropriate style for a target with a given set of attributes.",
