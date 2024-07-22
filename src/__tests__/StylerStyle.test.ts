@@ -1,6 +1,6 @@
 import {describe, it, expect} from "vitest";
 import {StylerStyle} from "../StylerStyle";
-import {StyleAttrs} from "../../types";
+import {StyleAttrs} from "../types";
 
 const ATTRS: StyleAttrs = {
   'variant': 'primary',

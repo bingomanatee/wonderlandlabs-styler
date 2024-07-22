@@ -21,7 +21,7 @@ export type AttrValue = string | boolean | number;
 export type Style = Record<string, unknown>;
 export type StyleAttrs = {
   variant?: string,
-  appearance?: 'light' | 'darn',
+  appearance?: 'light' | 'dark',
   target?: string
 } & Record<string, AttrValue>;
 // @ts-ignore
