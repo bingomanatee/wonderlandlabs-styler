@@ -33,5 +33,8 @@
       "import": "./dist/Styler.js",
       "require": "./dist/Styler.umd.cjs"
     }
-  }
+  },
+  "description": "An demo of a \"style specificity engine\"; you add styles with annotative properties to a local store and retrieve the most appropriate style for a target with a given set of attributes.",
+  "keywords": [],
+  "license": "ISC"
 }
