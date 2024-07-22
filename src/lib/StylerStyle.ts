@@ -6,6 +6,10 @@ const scoreValue: Map<string, number> = new Map([
   ['variant', 4],
 ]);
 
+function keyCount(a: Record<unknown, unknown>) {
+  return Array.from(Object.keys(a)).length;
+};
+
 /**
  * this is a single directive: for any style containing these attributes with the same keys and values
  * (but NOT necessarily vice versa) apply all of these styles.
@@ -31,25 +35,16 @@ export class StylerStyle implements StylerStyleIF {
   }
 
   get attrCount() {
-    return Array.from(Object.keys(this.attrs)).length;
+    return keyCount(this.attrs);
   }
 
   isLessSpecific(attrs: StyleAttrs): boolean {
-    return this.includesKeys(attrs) && !this.matches(attrs);
+    return this.noExtraKeys(attrs) && this.attrCount > keyCount(attrs);
   }
 
-  similarity(attrs: StyleAttrs) {
-    let match = 0;
-    for (const prop of Object.keys(attrs)) {
-      const key = prop as string;
-      const propValue: unknown = attrs[key];
-
-      if (this.attrs[prop] === propValue) {
-        if (scoreValue.has(prop)) match += scoreValue.get(prop)!;
-        else match += 1;
-      }
-    }
-    return match;
+  isLessSpecificMatch(attrs: StyleAttrs) {
+    return this.isLessSpecific(attrs) && Object.keys(attrs).
+    every((key) => this.attrs[key] === attrs[key]);
   }
 
   /**
@@ -94,6 +89,24 @@ export class StylerStyle implements StylerStyleIF {
       && this.includesKeys(attrs)
       && Array.from(Object.keys(this.attrs))
         .every((k) => this.attrs[k] === attrs[k]);
+  }
+
+  toJSON() {
+    const out = {style:{}, attrs:{}};
+    Array.from(Object.keys(this.style)).sort().forEach((k) => {
+      out.style[k] = this.style[k];
+    })
+    Array.from(Object.keys(this.attrs)).sort().forEach((k) => {
+      out.attrs[k] = this.attrs[k];
+    })
+    return out;
+  }
+  toString() {
+    return JSON.stringify(this.toJSON());
+  }
+
+  equals(ss: StylerStyleIF) {
+    return ss.toString() === this.toString();
   }
 
 }

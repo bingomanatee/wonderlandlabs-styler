@@ -2,11 +2,13 @@ export interface StylerStyleIF {
   attrs: StyleAttrs;
   includesKeys(attrs: StyleAttrs) : boolean;
   isLessSpecific(attrs: StyleAttrs): boolean;
+  isLessSpecificMatch(attrs: StyleAttrs): boolean;
   matches(attrs: StyleAttrs): boolean;
   noExtraKeys(attrs: StyleAttrs): boolean,
-  similarity(attrs: StyleAttrs): number;
   specificity: number;
   style: Style;
+  toString(): string;
+  equals(ss: StylerStyleIF) : boolean;
 }
 
 export interface StylerIF {

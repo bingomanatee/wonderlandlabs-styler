@@ -13,15 +13,16 @@ export class Styler implements StylerIF {
   public static Singleton: Styler = new Styler();
 
   add(target: string, style: Style, attrs: StyleAttrs) {
+    const newStyle = new StylerStyle(style, attrs);
     if (!this.targetStyles.has(target)) {
-      this.targetStyles.set(target, [new StylerStyle(style, attrs)]);
+      this.targetStyles.set(target, [newStyle]);
     } else {
       if (this.targetStyles.get(target)!.some((ss) => {
        return ss.matches(attrs)
       })) {
         console.warn('added multiple definitions for target', target, 'attrs', attrs)
       }
-      this.targetStyles.get(target)!.push(new StylerStyle(style, attrs));
+      this.targetStyles.get(target)!.push(newStyle);
     }
   }
 
@@ -37,13 +38,13 @@ export class Styler implements StylerIF {
   lessSpecificStyles(target: string, attrs: StyleAttrs) {
     if (!this.targetStyles.has(target)) return [];
     return this.targetStyles.get(target)!
-      .filter((stylerStyle: StylerStyleIF) => stylerStyle.isLessSpecific(attrs))
+      .filter((stylerStyle: StylerStyleIF) => stylerStyle.isLessSpecificMatch(attrs))
       .sort((a, b) => b.specificity - a.specificity);
   }
 
   /**
    * compresses all styles that are not more specific than the attrs into a single style.
-   *  -- enforces any perfect match as the domainant style.
+   *  -- enforces any perfect match as the dominant style.
    *  -- supplies defaults from any less specific styles as supplemental definitions,
    *     in order of specificity.
    *
